@@ -1,8 +1,8 @@
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
-print("helloworld")
+print("hello world")
 
 def hello(name):
-    return f"안녕, {name}!"
+    return f"안녕하세요, {name}님!"
 
 print(hello("git"))
