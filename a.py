@@ -1,3 +1,5 @@
+VERSION = "1.0.0"
+
 print("helloworld")
 
 def hello(name):
