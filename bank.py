@@ -59,10 +59,13 @@ class Bank:
         return self.accounts[number]
 
     def transfer(self, src, dst, amount):
+        if src == dst:
+            raise BankError("같은 계좌로는 이체할 수 없습니다")
         sender = self.get(src)
         receiver = self.get(dst)
-        receiver.deposit(amount, f"{sender.owner}님 이체")
         sender.withdraw(amount, f"{receiver.owner}님에게 이체")
+        receiver.deposit(amount, f"{sender.owner}님 이체")
+
 
 
 if __name__ == "__main__":
