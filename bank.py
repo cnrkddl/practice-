@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 
@@ -66,19 +67,44 @@ class Bank:
         sender.withdraw(amount, f"{receiver.owner}님에게 이체")
         receiver.deposit(amount, f"{sender.owner}님 이체")
 
+    def save(self, path="bank.json"):
+        data = {
+            "next_number": self.next_number,
+            "accounts": [
+                {"number": a.number, "owner": a.owner,
+                 "balance": a.balance, "history": a.history}
+                for a in self.accounts.values()
+            ],
+        }
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    @classmethod
+    def load(cls, path="bank.json"):
+        bank = cls()
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            return bank
+        bank.next_number = data["next_number"]
+        for d in data["accounts"]:
+            acc = Account(d["number"], d["owner"])
+            acc.balance = d["balance"]
+            acc.history = d["history"]
+            bank.accounts[acc.number] = acc
+        return bank
 
 
 if __name__ == "__main__":
-    bank = Bank()
-    a = bank.open_account("홍길동")
-    b = bank.open_account("김철수")
-    a.deposit(10000, "월급")
+    bank = Bank.load()
+    if not bank.accounts:
+        a = bank.open_account("홍길동")
+        bank.open_account("김철수")
+        a.deposit(10000, "월급")
 
-    bank.transfer(a.number, b.number, 3000)
-    try:
-        bank.transfer(a.number, b.number, 50000)  # 잔액 부족 → 실패해야 정상
-    except BankError as e:
-        print("이체 실패:", e)
+    bank.transfer("1001", "1002", 1000)
 
-    a.print_history()
-    b.print_history()
+    for acc in bank.accounts.values():
+        acc.print_history()
+    bank.save()
